@@ -15,7 +15,7 @@ def import_csv_temperature(csvfilename):
         for rowincsv in reader:
             if rowincsv:  # avoid blank lines
                 row_index += 1
-                columns = [str(row_index), int(rowincsv["ts"]) // 1000, rowincsv["temperature"]]
+                columns = [str(row_index), int(rowincsv["ts"]) // 1000, float(rowincsv["temperature"])]
                 data.append(columns)
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
@@ -31,7 +31,7 @@ def import_csv_weather(csvfilename):
         for rowincsv in reader:
             if rowincsv:  # avoid blank lines
                 row_index += 1
-                columns = [str(row_index), int(rowincsv["ts"]) // 1000, rowincsv["Temperature"]]
+                columns = [str(row_index), int(rowincsv["ts"]) // 1000, float(rowincsv["Temperature"])]
                 data.append(columns)
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
@@ -44,29 +44,32 @@ data6 = import_csv_temperature('june/r6.csv')
 data7 = import_csv_temperature('june/r7.csv')
 dataweather = import_csv_weather('june/w1.csv')
 
-data5t = data5.T
-data6t = np.transpose(data6)
-data7t = np.transpose(data7)
-
-data5x = []
-data5y = []
-for row in data5:
-    data5x.append(row[1])
-    data5y.append(row[2])
-
+# define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
 time_stop = min(data5[-1][1], data6[-1][1], data7[-1][1])
 
-room5_inter = interp1d(data5x, data5y, kind='quadratic')
+data5t = np.transpose(data5)
+data6t = np.transpose(data6)
+data7t = np.transpose(data7)
+
+# print(data5t[0])
+data5x = []
+data5y = []
+for row in data5:
+    data5x.append(row[1]-time_start)
+    data5y.append(row[2])
+
+room5_inter = interp1d(data5x, data5y, kind='linear')
 # room6_inter = interp1d(data6[1], data6[2], kind='cubic')
 # room7_inter = interp1d(data7[1], data7[2], kind='cubic')
-x1new = np.linspace(time_start, time_stop, num=300, endpoint=True)
-plt.plot(data5x, data5y, 'o', x1new, room5_inter(x1new), '-')
+# x1new = np.linspace(0, time_stop - time_start, num=100, endpoint=True)
+# print(x1new)
+# plt.plot(data5x, data5y, '-', x1new, room5_inter(x1new), '-')
 # plt.plot(data5[1], data5[2], '0', x1new, room5_inter(x1new), 'o')
 
-with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open('june/r7.csv', 'r') as room7,\
-open('june/r9.csv', 'r') as room9, open('june/r10.csv', 'r') as room10, open('june/w1.csv', 'r') as outside,\
-open('june/result.csv', 'w') as res:
+with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open('june/r7.csv', 'r') as room7, \
+        open('june/r9.csv', 'r') as room9, open('june/r10.csv', 'r') as room10, open('june/w1.csv', 'r') as outside, \
+        open('june/result.csv', 'w') as res:
     # ts;humidity;light;motion;temperature;vdd
     # ts;BaroPressure;DewPoint;Humidity;Temperature;WindDirection;WindSpeed
     r5 = csv.DictReader(room5, delimiter=";")
@@ -108,8 +111,8 @@ open('june/result.csv', 'w') as res:
                 conc.writerow({'ts': time_m, 'tr': rt, 'tm': rm})
                 break
     # print(y_r5[10])
-# f22 = interp1d(x_r5, y_r5, kind='cubic')
-# x1new = np.linspace(x_r5[0], x_r5[-1], num=100, endpoint=True)
-# plt.plot(x_r5, y_r5, '-', x1new, f22(x1new), 'o')
-# plt.legend(['data', 'linear', 'cubic'], loc='best')
+f22 = interp1d(x_r5, y_r5, kind='cubic')
+x1new = np.linspace(x_r5[0], x_r5[-1], num=100, endpoint=True)
+plt.plot(x_r5, y_r5, '-', x1new, f22(x1new), 'o')
+plt.legend(['data', 'linear', 'cubic'], loc='best')
 plt.show()
