@@ -1,7 +1,7 @@
 import csv
 import datetime
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
 
@@ -76,14 +76,13 @@ with open('june/result.csv', 'w') as res:
     fin = int(dataweather[-1][0])
     for row in x1new:
         time_is_now = float(row)
-        for i in range (ind,fin):
+        for i in range(ind, fin):
             if int(dataweather[i][1]) < time_is_now:
                 continue
             else:
                 ind = i
                 break
         # time_is_second = int(time_is_now)
-        conc.writerow({'ts' : "%.0f" % row, 'tr5' : "%.3f" % room5_inter(row),\
-                       'tr6' : "%.3f" % room6_inter(row), 'tr7' : "%.3f" % room7_inter(time_is_now),\
-                       'tw' : "%.3f" % float(dataweather[ind][2]), 'twt' : "%.0f" % dataweather[ind][1],\
-                       'deltat' : round(row - dataweather[ind][1])})
+        conc.writerow(dict(ts="%.0f" % row, tr5="%.3f" % room5_inter(row), tr6="%.3f" % room6_inter(row),
+                           tr7="%.3f" % room7_inter(time_is_now), tw="%.3f" % float(dataweather[ind][2]),
+                           twt="%.0f" % dataweather[ind][1], deltat=round(row - dataweather[ind][1])))
