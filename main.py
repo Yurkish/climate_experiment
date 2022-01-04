@@ -44,13 +44,30 @@ data6 = import_csv_temperature('june/r6.csv')
 data7 = import_csv_temperature('june/r7.csv')
 dataweather = import_csv_weather('june/w1.csv')
 
-with open('june/r5.csv', 'r') as room5,\
-    open('june/r6.csv', 'r') as room6,\
-    open('june/r7.csv', 'r') as room7,\
-    open('june/r9.csv', 'r') as room9,\
-    open('june/r10.csv', 'r') as room10,\
-    open('june/w1.csv', 'r') as outside,\
-    open('june/result.csv', 'w') as res:
+data5t = np.transpose(data5)
+data6t = np.transpose(data6)
+data7t = np.transpose(data7)
+
+
+data5x = []
+data5y = []
+for row in data5:
+    data5x.append(row[1])
+    data5y.append(row[2])
+
+time_start = max(data5[1][1], data6[1][1], data7[1][1])
+time_stop = min(data5[-1][1], data6[-1][1], data7[-1][1])
+
+room5_inter = interp1d(data5x, data5y, kind='cubic')
+# room6_inter = interp1d(data6[1], data6[2], kind='cubic')
+# room7_inter = interp1d(data7[1], data7[2], kind='cubic')
+x1new = np.linspace(time_start, time_stop, num=300, endpoint=True)
+plt.plot(data5x, data5y, '-', x1new, room5_inter(x1new), 'o')
+# plt.plot(data5[1], data5[2], '0', x1new, room5_inter(x1new), 'o')
+
+with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open('june/r7.csv', 'r') as room7,\
+open('june/r9.csv', 'r') as room9, open('june/r10.csv', 'r') as room10, open('june/w1.csv', 'r') as outside,\
+open('june/result.csv', 'w') as res:
     # ts;humidity;light;motion;temperature;vdd
     # ts;BaroPressure;DewPoint;Humidity;Temperature;WindDirection;WindSpeed
     r5 = csv.DictReader(room5, delimiter=";")
@@ -92,8 +109,8 @@ with open('june/r5.csv', 'r') as room5,\
                 conc.writerow({'ts': time_m, 'tr': rt, 'tm': rm})
                 break
     # print(y_r5[10])
-f22 = interp1d(x_r5, y_r5, kind='cubic')
-x1new = np.linspace(x_r5[0], x_r5[-1], num=100, endpoint=True)
-plt.plot(x_r5, y_r5, '-', x1new, f22(x1new), 'o')
-plt.legend(['data', 'linear', 'cubic'], loc='best')
+# f22 = interp1d(x_r5, y_r5, kind='cubic')
+# x1new = np.linspace(x_r5[0], x_r5[-1], num=100, endpoint=True)
+# plt.plot(x_r5, y_r5, '-', x1new, f22(x1new), 'o')
+# plt.legend(['data', 'linear', 'cubic'], loc='best')
 plt.show()
