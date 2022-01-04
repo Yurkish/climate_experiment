@@ -1,9 +1,9 @@
 import csv
 import datetime
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-
+from numpy.linalg import inv
 
 # ts;humidity;light;motion;temperature;vdd
 def import_csv_temperature(csvfilename):
@@ -86,3 +86,26 @@ with open('june/result.csv', 'w') as res:
         conc.writerow(dict(ts="%.0f" % row, tr5="%.3f" % room5_inter(row), tr6="%.3f" % room6_inter(row),
                            tr7="%.3f" % room7_inter(time_is_now), tw="%.3f" % float(dataweather[ind][2]),
                            twt="%.0f" % dataweather[ind][1], deltat=round(row - dataweather[ind][1])))
+res.close()
+
+
+ksi = []
+x1ksi = []
+U = []
+with open('june/result.csv', 'r') as data_res:
+    reader = csv.DictReader(data_res, delimiter=';')
+    row_index1 = 0
+    for row in reader:
+        row_index1 += 1
+        if row_index1 < 2:
+            continue
+        else:
+            if row_index1 == 498:
+                break
+            else:
+                ksi.append(float(row['tr6']))
+                x1ksi.append(x1new[row_index1])
+
+    plt.plot(x1ksi, ksi, '-', x1new, room6_inter(x1new), '*')
+    plt.legend(['data', 'linear', 'cubic'], loc='best')
+    plt.show()
