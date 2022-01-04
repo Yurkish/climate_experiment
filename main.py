@@ -96,16 +96,27 @@ with open('june/result.csv', 'r') as data_res:
     reader = csv.DictReader(data_res, delimiter=';')
     row_index1 = 0
     for row in reader:
-        row_index1 += 1
         if row_index1 < 2:
-            continue
+            if row_index1 == 1:
+               arr = np.array([[float(row['tr6']),float(row['tr5']), float(row['tr7']),float(row['tw'])]])
+               U.append(arr)
         else:
-            if row_index1 == 498:
+            if row_index1 > 497:
+                arr = np.array([[float(row['tr6']),float(row['tr5']), float(row['tr7']),float(row['tw'])]])
+                U.append(arr)
                 break
             else:
                 ksi.append(float(row['tr6']))
                 x1ksi.append(x1new[row_index1])
-
-    plt.plot(x1ksi, ksi, '-', x1new, room6_inter(x1new), '*')
-    plt.legend(['data', 'linear', 'cubic'], loc='best')
-    plt.show()
+                arr = np.array([[float(row['tr6']),float(row['tr5']), float(row['tr7']),float(row['tw'])]])
+                U.append(arr)
+        row_index1 += 1
+    Ut = np.transpose(np.matrix(U))
+    UtU = np.dot(Ut,U)
+    UtUinv = inv(UtU)
+    UtUinvUt = np.dot(UtUinv,Ut)
+    a_estimate = np.dot(UtUinvUt, ksi)
+    print(a_estimate)
+    # plt.plot(x1ksi, ksi, '-', x1new, room6_inter(x1new), '*')
+    # plt.legend(['data', 'linear', 'cubic'], loc='best')
+    # plt.show()
