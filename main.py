@@ -15,7 +15,7 @@ def import_csv_temperature(csvfilename):
         for rowincsv in reader:
             if rowincsv:  # avoid blank lines
                 row_index += 1
-                columns = [str(row_index), int(rowincsv["ts"]) // 1000, float(rowincsv["temperature"])]
+                columns = [str(row_index), int(rowincsv["ts"]) // 1000, rowincsv["temperature"]]
                 data.append(columns)
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
@@ -31,38 +31,51 @@ def import_csv_weather(csvfilename):
         for rowincsv in reader:
             if rowincsv:  # avoid blank lines
                 row_index += 1
-                columns = [str(row_index), int(rowincsv["ts"]) // 1000, float(rowincsv["Temperature"])]
+                columns = [str(row_index), int(rowincsv["ts"]) // 1000, rowincsv["Temperature"]]
                 data.append(columns)
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
     return data
 
 
+
 # importing data from csv files
 data5 = import_csv_temperature('june/r5.csv')
 data6 = import_csv_temperature('june/r6.csv')
 data7 = import_csv_temperature('june/r7.csv')
-dataweather = import_csv_weather('june/w1.csv')
+# dataweather = import_csv_weather('june/w1.csv')
 
 # define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
+# print(data5[1][1], data6[1][1], data7[1][1], time_start)
 time_stop = min(data5[-1][1], data6[-1][1], data7[-1][1])
-
-data5t = np.transpose(data5)
-data6t = np.transpose(data6)
-data7t = np.transpose(data7)
+# print(time_stop, data5[-1][1], data6[-1][1], data7[-1][1])
+# data5t = np.transpose(data5)
+# data6t = np.transpose(data6)
+# data7t = np.transpose(data7)
 
 # print(data5t[0])
 data5x = []
 data5y = []
 for row in data5:
-    data5x.append(row[1]-time_start)
+    data5x.append(row[1])
     data5y.append(row[2])
+data6x = []
+data6y = []
+for row in data6:
+    data6x.append(row[1])
+    data6y.append(row[2])
+data7x = []
+data7y = []
+for row in data7:
+    data7x.append(row[1])
+    data7y.append(row[2])
 
-room5_inter = interp1d(data5x, data5y, kind='linear')
-# room6_inter = interp1d(data6[1], data6[2], kind='cubic')
-# room7_inter = interp1d(data7[1], data7[2], kind='cubic')
-# x1new = np.linspace(0, time_stop - time_start, num=100, endpoint=True)
+
+room5_inter = interp1d(data5x, data5y, kind='cubic')
+room6_inter = interp1d(data6x, data6y, kind='cubic')
+room7_inter = interp1d(data7x, data7y, kind='cubic')
+x1new = np.linspace(0, time_stop - time_start, num=500, endpoint=True)
 # print(x1new)
 # plt.plot(data5x, data5y, '-', x1new, room5_inter(x1new), '-')
 # plt.plot(data5[1], data5[2], '0', x1new, room5_inter(x1new), 'o')
@@ -93,9 +106,9 @@ with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open(
     y_r6 = []
     y_r7 = []
 
-    for row in r5:
+    for row in r7:
         time_r5 = int(row["ts"]) // 1000
-        timer5 = datetime.datetime.fromtimestamp(time_r5)
+        # timer5 = datetime.datetime.fromtimestamp(time_r5)
         temp_r5 = float(row["temperature"])
         x_r5.append(time_r5)
         y_r5.append(temp_r5)
@@ -107,12 +120,14 @@ with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open(
                 # print("time_m =", time_m, " time_r9 = ", time_r9)
                 rt = float(row["temperature"])
                 rm = float(row_m["Temperature"])
-                rslt = [time_m, rt, rm]
+                # rslt = [time_m, rt, rm]
                 conc.writerow({'ts': time_m, 'tr': rt, 'tm': rm})
                 break
     # print(y_r5[10])
+f21 = interp1d(x_r5, y_r5, kind='linear')
 f22 = interp1d(x_r5, y_r5, kind='cubic')
-x1new = np.linspace(x_r5[0], x_r5[-1], num=100, endpoint=True)
-plt.plot(x_r5, y_r5, '-', x1new, f22(x1new), 'o')
+x1new = np.linspace(x_r5[1], x_r5[-1], num=500, endpoint=True)
+# x1new = np.linspace(data5[1][1], data5[1][-1], num=100, endpoint=True)
+plt.plot(x_r5, y_r5, 'o', x1new, f22(x1new), '-', x1new, room7_inter(x1new), '*')
 plt.legend(['data', 'linear', 'cubic'], loc='best')
 plt.show()
