@@ -44,10 +44,9 @@ data6 = import_csv_temperature('june/r6.csv')
 data7 = import_csv_temperature('june/r7.csv')
 dataweather = import_csv_weather('june/w1.csv')
 
-data5t = np.transpose(data5)
+data5t = data5.T
 data6t = np.transpose(data6)
 data7t = np.transpose(data7)
-
 
 data5x = []
 data5y = []
@@ -58,11 +57,11 @@ for row in data5:
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
 time_stop = min(data5[-1][1], data6[-1][1], data7[-1][1])
 
-room5_inter = interp1d(data5x, data5y, kind='cubic')
+room5_inter = interp1d(data5x, data5y, kind='quadratic')
 # room6_inter = interp1d(data6[1], data6[2], kind='cubic')
 # room7_inter = interp1d(data7[1], data7[2], kind='cubic')
 x1new = np.linspace(time_start, time_stop, num=300, endpoint=True)
-plt.plot(data5x, data5y, '-', x1new, room5_inter(x1new), 'o')
+plt.plot(data5x, data5y, 'o', x1new, room5_inter(x1new), '-')
 # plt.plot(data5[1], data5[2], '0', x1new, room5_inter(x1new), 'o')
 
 with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open('june/r7.csv', 'r') as room7,\
