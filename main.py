@@ -91,7 +91,7 @@ res.close()
 
 ksi = []
 x1ksi = []
-U = []
+U = np.ones[4]
 with open('june/result.csv', 'r') as data_res:
     reader = csv.DictReader(data_res, delimiter=';')
     row_index1 = 0
