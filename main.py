@@ -1,9 +1,10 @@
 import csv
 import datetime
+
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
 from numpy.linalg import inv
+from scipy.interpolate import interp1d
+
 
 # ts;humidity;light;motion;temperature;vdd
 def import_csv_temperature(csvfilename):
@@ -67,12 +68,22 @@ for row in data7:
 room5_inter = interp1d(data5x, data5y, kind='cubic')
 room6_inter = interp1d(data6x, data6y, kind='cubic')
 room7_inter = interp1d(data7x, data7y, kind='cubic')
-x1new = np.linspace(time_start, time_stop, num=500, endpoint=True)
+x1new = np.linspace(time_start, time_stop, num=300, endpoint=True)
+#
+
+time_steps = len(x1new)
+print('time steps = ', time_steps)
+w, h = 4, time_steps
+# U: list[list[int]] = [[0 for x in range(w)] for y in range(h)]
+U = np.zeros( (h-1,w) )
+ksi = np.zeros( h-1 )
+# ksi = [0 for y in range(h)]
 
 with open('june/result.csv', 'w') as res:
     conc = csv.DictWriter(res, delimiter=";", fieldnames=['ts', 'tr5', 'tr6', 'tr7', 'tw', 'twt', 'deltat'])
     conc.writeheader()
     ind = 1
+    indd = 0
     fin = int(dataweather[-1][0])
     for row in x1new:
         time_is_now = float(row)
@@ -83,40 +94,39 @@ with open('june/result.csv', 'w') as res:
                 ind = i
                 break
         # time_is_second = int(time_is_now)
-        conc.writerow(dict(ts="%.0f" % row, tr5="%.3f" % room5_inter(row), tr6="%.3f" % room6_inter(row),
+        if indd == 0:
+            U[indd][0] = "%.7f" % float(room6_inter(time_is_now))
+            U[indd][1] = "%.7f" % float(room5_inter(time_is_now))
+            U[indd][2] = "%.7f" % float(room7_inter(time_is_now))
+            U[indd][3] = "%.7f" % float(dataweather[ind][2])
+        else:
+            if indd < time_steps - 1:
+                U[indd][0] = "%.7f" % float(room6_inter(time_is_now))
+                U[indd][1] = "%.7f" % float(room5_inter(time_is_now))
+                U[indd][2] = "%.7f" % float(room7_inter(time_is_now))
+                U[indd][3] = "%.7f" % float(dataweather[ind][2])
+                ksi[indd-1] = U[indd][0]
+        indd += 1
+        conc.writerow(dict(ts="%.0f" % row, tr5="%.3f" % room5_inter(time_is_now), tr6="%.7f" % room6_inter(time_is_now),
                            tr7="%.3f" % room7_inter(time_is_now), tw="%.3f" % float(dataweather[ind][2]),
                            twt="%.0f" % dataweather[ind][1], deltat=round(row - dataweather[ind][1])))
 res.close()
+# print('497 - ', ksi[497], ', 498 - ', ksi[498])
+ksi[time_steps - 2] = float(room6_inter(time_stop))
+print('ksi length = ', len(ksi))
+print('vector ksi: \n',ksi, '\n')
+print('U size = ', len(U))
 
+print('Matrix U: \n',U, '\n')
+# print(Ut)
+Ut = U.transpose()
+print('Matrix Ut: \n',Ut, '\n')
+mU = np.matrix(U)
+mUt = np.matrix(Ut)
+UtU = mUt.dot(mU)
+print('Matrix UtU: \n',UtU, '\n')
+UtUinv = inv(UtU)
+UtUinvUt = UtUinv.dot(Ut)
+a_estimate = UtUinvUt @ ksi
+print(a_estimate)
 
-ksi = []
-x1ksi = []
-U = np.ones[4]
-with open('june/result.csv', 'r') as data_res:
-    reader = csv.DictReader(data_res, delimiter=';')
-    row_index1 = 0
-    for row in reader:
-        if row_index1 < 2:
-            if row_index1 == 1:
-               arr = np.array([[float(row['tr6']),float(row['tr5']), float(row['tr7']),float(row['tw'])]])
-               U.append(arr)
-        else:
-            if row_index1 > 497:
-                arr = np.array([[float(row['tr6']),float(row['tr5']), float(row['tr7']),float(row['tw'])]])
-                U.append(arr)
-                break
-            else:
-                ksi.append(float(row['tr6']))
-                x1ksi.append(x1new[row_index1])
-                arr = np.array([[float(row['tr6']),float(row['tr5']), float(row['tr7']),float(row['tw'])]])
-                U.append(arr)
-        row_index1 += 1
-    Ut = np.transpose(np.matrix(U))
-    UtU = np.dot(Ut,U)
-    UtUinv = inv(UtU)
-    UtUinvUt = np.dot(UtUinv,Ut)
-    a_estimate = np.dot(UtUinvUt, ksi)
-    print(a_estimate)
-    # plt.plot(x1ksi, ksi, '-', x1new, room6_inter(x1new), '*')
-    # plt.legend(['data', 'linear', 'cubic'], loc='best')
-    # plt.show()
