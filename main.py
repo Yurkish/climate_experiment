@@ -1,49 +1,28 @@
-import csv
-import datetime
-
+from MyFunctions import *
 import numpy as np
 from numpy.linalg import inv
 from scipy.interpolate import interp1d
 
 
-# ts;humidity;light;motion;temperature;vdd
-def import_csv_temperature(csvfilename):
-    data = []
-    with open(csvfilename, "r", encoding="utf-8", errors="ignore") as scraped:
-        reader = csv.DictReader(scraped, delimiter=';')
-        # header = reader.fieldnames
-        row_index = 0
-        for rowincsv in reader:
-            if rowincsv:  # avoid blank lines
-                row_index += 1
-                columns = [str(row_index), int(rowincsv["ts"]) // 1000, rowincsv["temperature"]]
-                data.append(columns)
-        print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
-        print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
-    return data
-
-
-def import_csv_weather(csvfilename):
-    data = []
-    with open(csvfilename, "r", encoding="utf-8", errors="ignore") as scraped:
-        reader = csv.DictReader(scraped, delimiter=';')
-        # header = reader.fieldnames
-        row_index = 0
-        for rowincsv in reader:
-            if rowincsv:  # avoid blank lines
-                row_index += 1
-                columns = [str(row_index), int(rowincsv["ts"]) // 1000, rowincsv["Temperature"]]
-                data.append(columns)
-        print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
-        print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
-    return data
-
-
 # importing data from csv files
-data5 = import_csv_temperature('june/r5.csv')
-data6 = import_csv_temperature('june/r6.csv')
-data7 = import_csv_temperature('june/r7.csv')
-dataweather = import_csv_weather('june/w1.csv')
+month_code = 'july'
+match month_code:
+    case 'jun':
+        data5 = import_csv_temperature('june/r5.csv')
+        data6 = import_csv_temperature('june/r6.csv')
+        data7 = import_csv_temperature('june/r7.csv')
+        dataweather = import_csv_weather('june/w1.csv')
+    case 'july':
+        data5 = import_csv_temperature('july/room5_july.csv')
+        data6 = import_csv_temperature('july/room6_july.csv')
+        data7 = import_csv_temperature('july/room7_july.csv')
+        dataweather = import_csv_weather('july/met.csv')
+    case 'aug':
+        data5 = import_csv_temperature('aug/r5_aug.csv')
+        data6 = import_csv_temperature('aug/r6_aug.csv')
+        data7 = import_csv_temperature('aug/r7_aug.csv')
+        dataweather = import_csv_weather('aug/w_aug.csv')
+
 
 # define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
@@ -68,7 +47,7 @@ for row in data7:
 room5_inter = interp1d(data5x, data5y, kind='cubic')
 room6_inter = interp1d(data6x, data6y, kind='cubic')
 room7_inter = interp1d(data7x, data7y, kind='cubic')
-x1new = np.linspace(time_start, time_stop, num=300, endpoint=True)
+x1new = np.linspace(time_start, time_stop, num=800, endpoint=True)
 #
 
 time_steps = len(x1new)
@@ -79,7 +58,7 @@ U = np.zeros( (h-1,w) )
 ksi = np.zeros( h-1 )
 # ksi = [0 for y in range(h)]
 
-with open('june/result.csv', 'w') as res:
+with open('result-aug.csv', 'w') as res:
     conc = csv.DictWriter(res, delimiter=";", fieldnames=['ts', 'tr5', 'tr6', 'tr7', 'tw', 'twt', 'deltat'])
     conc.writeheader()
     ind = 1
@@ -128,5 +107,6 @@ print('Matrix UtU: \n',UtU, '\n')
 UtUinv = inv(UtU)
 UtUinvUt = UtUinv.dot(Ut)
 a_estimate = UtUinvUt @ ksi
-print(a_estimate)
+x2  = np.array(a_estimate)*(1/float(x1new[5]-x1new[4]))
+print(x2)
 

@@ -3,8 +3,6 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-
-
 # ts;humidity;light;motion;temperature;vdd
 def import_csv_temperature(csvfilename):
     data = []
@@ -20,8 +18,6 @@ def import_csv_temperature(csvfilename):
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
     return data
-
-
 def import_csv_weather(csvfilename):
     data = []
     with open(csvfilename, "r", encoding="utf-8", errors="ignore") as scraped:
@@ -36,8 +32,6 @@ def import_csv_weather(csvfilename):
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
     return data
-
-
 # importing data from csv files
 data5 = import_csv_temperature('june/r5.csv')
 data6 = import_csv_temperature('june/r6.csv')
@@ -107,7 +101,7 @@ with open('june/r5.csv', 'r') as room5, open('june/r6.csv', 'r') as room6, open(
     y_r6 = []
     y_r7 = []
 
-    for row in r7:
+    for row in r5:
         time_r5 = int(row["ts"]) // 1000
         # timer5 = datetime.datetime.fromtimestamp(time_r5)
         temp_r5 = float(row["temperature"])
@@ -129,6 +123,11 @@ f21 = interp1d(x_r5, y_r5, kind='linear')
 f22 = interp1d(x_r5, y_r5, kind='cubic')
 x1new = np.linspace(x_r5[1], x_r5[-1], num=500, endpoint=True)
 # x1new = np.linspace(data5[1][1], data5[1][-1], num=100, endpoint=True)
-plt.plot(x_r5, y_r5, 'o', x1new, f22(x1new), '-', x1new, room7_inter(x1new), '*')
-plt.legend(['data', 'linear', 'cubic'], loc='best')
-plt.show()
+#plt.plot(x_r5, y_r5, 'o', x1new, f22(x1new), '-', x1new, room7_inter(x1new), '*')
+#plt.legend(['data', 'linear', 'cubic'], loc='best')
+#plt.show()
+x_simple = np.array([-2, -1, 0, 1, 2])
+y_simple = np.array([4, 1, 3, 2, 0])
+my_rho = np.corrcoef(x_simple, y_simple)
+
+print(my_rho)
