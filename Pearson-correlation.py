@@ -3,7 +3,7 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+from scipy import stats
 # importing data from csv files
 month_code = 'june'
 match month_code:
@@ -103,8 +103,8 @@ res.close()
 
 x_s = np.array(x_simple)
 y_s = np.array(y_simple)
-plt.plot(time_simple, x_simple, '-', time_simple, y_simple, '*')
-plt.show()
+#plt.plot(time_simple, x_simple, '-', time_simple, y_simple, '*')
+#plt.show()
 my_rho = np.corrcoef(x_s, y_s)
 
 research_amount = 100
@@ -114,9 +114,22 @@ print('pearson coefficient = ',my_rho)
 for ii in range(research_amount):
     xxs = x_s[ii:]
     yys = y_s[:h-ii]
-    plt.plot(time_simple[:h-ii], xxs, '-', time_simple[:h-ii], yys, '*')
+    #plt.plot(time_simple[:h-ii], xxs, '-', time_simple[:h-ii], yys, '*')
     #plt.show()
     issleduem[ii] = np.corrcoef(xxs,yys)[0][1]
     print('pearson coefficient ', ii,' = ', issleduem[ii])
 print(np.where(issleduem == max(issleduem)))
+print(np.argmax(issleduem))
+q = np.argmax(issleduem)
 #print(issleduem.index(issleduem.max()))
+
+slope, intercept, r, p, std_err = stats.linregress(y_s[:h-q],x_s[q:])
+
+def myfunc(xxx):
+  return slope * xxx + intercept
+
+mymodel = list(map(myfunc, y_s[:h-q]))
+
+plt.scatter(y_s[:h-q], x_s[q:])
+plt.plot(y_s[:h-q], mymodel)
+plt.show()
