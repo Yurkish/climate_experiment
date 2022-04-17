@@ -106,4 +106,4 @@ plt.plot(time_simple, x_s, '-', time_simple, y_s, '*')
 plt.show()
 my_rho = np.corrcoef(x_s, y_s)
 
-print('pearson coefficient = ',my_rho[0][1])
+print('pearson coefficient = ',my_rho)
