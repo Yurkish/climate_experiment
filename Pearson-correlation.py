@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy import stats
 # importing data from csv files
-month_code = 'aug'
+month_code = 'june'
 
 match month_code:
     case 'june':
@@ -13,8 +13,8 @@ match month_code:
         data6 = import_csv_temperature('june/r6.csv')
         data7 = import_csv_temperature('june/r7.csv')
         dataweather = import_csv_weather('june/w1.csv')
-        time_point_amount = 800
-        research_amount = 100
+        time_point_amount = 4320
+        research_amount = 300
     case 'july':
         data5 = import_csv_temperature('july/room5_july.csv')
         data6 = import_csv_temperature('july/room6_july.csv')
@@ -27,12 +27,8 @@ match month_code:
         data6 = import_csv_temperature('aug/r6_aug.csv')
         data7 = import_csv_temperature('aug/r7_aug.csv')
         dataweather = import_csv_weather('aug/w_aug.csv')
-        time_point_amount = 8000
-        research_amount = 700
-
-# define time interval that is covered by data from all three rooms
-time_start = max(data5[1][1], data6[1][1], data7[1][1])
-time_stop = min(data5[-1][1], data6[-1][1], data7[-1][1])
+        time_point_amount = 14400
+        research_amount = 1000
 
 # define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
@@ -117,10 +113,10 @@ my_rho = np.corrcoef(x_s, y_s)
 
 issleduem = np.zeros(research_amount)
 print('pearson coefficient = ',my_rho)
-
+yys = y_s[:h-research_amount]
 for ii in range(research_amount):
-    xxs = x_s[ii:]
-    yys = y_s[:h-ii]
+    xxs = x_s[ii:h-research_amount+ii]
+
     #plt.plot(time_simple[:h-ii], xxs, '-', time_simple[:h-ii], yys, '*')
     #plt.show()
     issleduem[ii] = np.corrcoef(xxs,yys)[0][1]
@@ -129,16 +125,22 @@ print(np.where(issleduem == max(issleduem)))
 print(np.argmax(issleduem))
 q = np.argmax(issleduem)
 #print(issleduem.index(issleduem.max()))
-f1 = plt.figure(1)
-plt.plot([1, 2, 3])
-plt.title("Figure 1 not cleared clf()")
-slope, intercept, r, p, std_err = stats.linregress(y_s[:h-q],x_s[q:])
+slope, intercept, r, p, std_err = stats.linregress(y_s[:h-research_amount],x_s[q:h-research_amount+q])
 
 def myfunc(xxx):
   return slope * xxx + intercept
 
 mymodel = list(map(myfunc, y_s[:h-q]))
-
+f1 = plt.figure(1)
+plt.plot(x1new[research_amount:], x_s[research_amount:], '*',x1new[research_amount:],myfunc(y_s[q:h-research_amount+q]),'-')
+plt.legend(['inside temp, inside_predicted'], loc='best')
+f2 = plt.figure(2)
 plt.scatter(y_s[:h-q], x_s[q:])
 plt.plot(y_s[:h-q], mymodel)
+
+f3 = plt.figure(3)
+plt.plot(x1new, x_s, '-', x1new, y_s, '*')
+plt.legend('Initial condition')
+f4 = plt.figure(4)
+plt.plot(range(research_amount),issleduem)
 plt.show()

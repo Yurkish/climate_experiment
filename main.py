@@ -23,7 +23,6 @@ match month_code:
         data7 = import_csv_temperature('aug/r7_aug.csv')
         dataweather = import_csv_weather('aug/w_aug.csv')
 
-
 # define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
 time_stop = min(data5[-1][1], data6[-1][1], data7[-1][1])
