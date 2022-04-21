@@ -5,30 +5,30 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy import stats
 # importing data from csv files
-month_code = 'june'
+month_code = 'july'
 
 match month_code:
     case 'june':
-        data5 = import_csv_temperature('june/r5.csv')
-        data6 = import_csv_temperature('june/r6.csv')
-        data7 = import_csv_temperature('june/r7.csv')
-        dataweather = import_csv_weather('june/w1.csv')
+        data5 = import_csv_temperature('dataset/jun20/ELT_aud.5_6D73.csv')
+        data6 = import_csv_temperature('dataset/jun20/ELT_aud._6_8B17.csv')
+        data7 = import_csv_temperature('dataset/jun20/ERS-CO2_aud._7.csv')
+        dataweather = import_csv_weather('dataset/jun20/Meteostantsiia_1.csv')
         time_point_amount = 4320
         research_amount = 300
     case 'july':
-        data5 = import_csv_temperature('july/room5_july.csv')
-        data6 = import_csv_temperature('july/room6_july.csv')
-        data7 = import_csv_temperature('july/room7_july.csv')
-        dataweather = import_csv_weather('july/met.csv')
-        time_point_amount = 800
-        research_amount = 100
+        data5 = import_csv_temperature('dataset/jul20/ELT_aud.5_6D73.csv')
+        data6 = import_csv_temperature('dataset/jul20/ELT_aud._6_8B17.csv')
+        data7 = import_csv_temperature('dataset/jul20/ERS-CO2_aud._7.csv')
+        dataweather = import_csv_weather('dataset/jul20/Meteostantsiia_1.csv')
+        time_point_amount = 18720
+        research_amount = 600
     case 'aug':
         data5 = import_csv_temperature('aug/r5_aug.csv')
         data6 = import_csv_temperature('aug/r6_aug.csv')
         data7 = import_csv_temperature('aug/r7_aug.csv')
         dataweather = import_csv_weather('aug/w_aug.csv')
-        time_point_amount = 14400
-        research_amount = 1000
+        time_point_amount = 4320
+        research_amount = 600
 
 # define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
@@ -113,10 +113,12 @@ my_rho = np.corrcoef(x_s, y_s)
 
 issleduem = np.zeros(research_amount)
 print('pearson coefficient = ',my_rho)
-yys = y_s[:h-research_amount]
+#yys = y_s[:h-research_amount] #погода зафиксирована
 for ii in range(research_amount):
-    xxs = x_s[ii:h-research_amount+ii]
-
+    xxs = x_s[ii:h]
+    #xxs = x_s[ii:h-research_amount+ii]
+    yys = y_s[:h-ii]
+    print('weather yss-len=', len(yys), ', room xss-len= ', len(xxs))
     #plt.plot(time_simple[:h-ii], xxs, '-', time_simple[:h-ii], yys, '*')
     #plt.show()
     issleduem[ii] = np.corrcoef(xxs,yys)[0][1]

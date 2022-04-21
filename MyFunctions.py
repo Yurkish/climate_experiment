@@ -3,6 +3,8 @@ import datetime
 import numpy as np
 from numpy.linalg import inv
 from scipy.interpolate import interp1d
+from tkinter import filedialog
+from tkinter import *
 
 # ts;humidity;light;motion;temperature;vdd
 def import_csv_temperature(csvfilename):
@@ -18,6 +20,8 @@ def import_csv_temperature(csvfilename):
                 data.append(columns)
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
+        print(csvfilename, ' - begins at: ', data[1][1])
+        print(csvfilename, ' - ends at  : ', data[-1][1])
     return data
 
 
@@ -35,3 +39,9 @@ def import_csv_weather(csvfilename):
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
     return data
+
+def create_file_list():
+    root = Tk()
+    root.withdraw()
+    folder_selected = filedialog.askdirectory()
+    return root
