@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy import stats
 # importing data from csv files
-month_code = 'july'
+month_code = 'aug'
 
 match month_code:
     case 'june':
@@ -27,8 +27,8 @@ match month_code:
         data6 = import_csv_temperature('aug/r6_aug.csv')
         data7 = import_csv_temperature('aug/r7_aug.csv')
         dataweather = import_csv_weather('aug/w_aug.csv')
-        time_point_amount = 4320
-        research_amount = 600
+        time_point_amount = 14400
+        research_amount = 1000
 
 # define time interval that is covered by data from all three rooms
 time_start = max(data5[1][1], data6[1][1], data7[1][1])
@@ -59,8 +59,10 @@ room5_inter = interp1d(data5x, data5y, kind='cubic')
 room6_inter = interp1d(data6x, data6y, kind='cubic')
 room7_inter = interp1d(data7x, data7y, kind='cubic')
 #weath_inter = interp1d(datawx, datawy, kind='cubic')
-x1new = np.linspace(time_start, time_stop, num=time_point_amount, endpoint=True)
 
+
+#x1new = np.linspace(time_start, time_stop, num=time_point_amount, endpoint=True)
+x1new = np.linspace(1597612430, 1598591836, num=time_point_amount, endpoint=True)
 time_steps = len(x1new)
 print('time steps = ', time_steps)
 w, h = 4, time_steps
@@ -69,7 +71,7 @@ U = np.zeros( (h-1,w) )
 x_simple = np.zeros( h )
 y_simple = np.zeros( h)
 time_simple = np.zeros( h)
-with open('pearson-corr.csv', 'w') as res:
+with open('pearson-corr3.csv', 'w') as res:
     conc = csv.DictWriter(res, delimiter=";", fieldnames=['ts', 'tr5', 'tr6', 'tr7', 'tw', 'twt', 'deltat'])
     conc.writeheader()
     ind = 1
@@ -103,22 +105,24 @@ with open('pearson-corr.csv', 'w') as res:
                            tr7="%.3f" % room7_inter(time_is_now), tw="%.3f" % float(dataweather[ind][2]),
                            twt="%.0f" % dataweather[ind][1], deltat=round(row - dataweather[ind][1])))
 res.close()
+#create_res_by_time('file_aug_1.csv', 1596445282000, 1596773016000, data5x, data5y,data6x, data6y, data7x, data7y, dataweather)
+
 
 x_s = np.array(x_simple)
 y_s = np.array(y_simple)
+
+#x_s, y_s = create_arrays('aug')
+
 #plt.plot(time_simple, x_simple, '-', time_simple, y_simple, '*')
 #plt.show()
 my_rho = np.corrcoef(x_s, y_s)
 
-
 issleduem = np.zeros(research_amount)
 print('pearson coefficient = ',my_rho)
-#yys = y_s[:h-research_amount] #погода зафиксирована
+yys = y_s[:h-research_amount]
 for ii in range(research_amount):
-    xxs = x_s[ii:h]
-    #xxs = x_s[ii:h-research_amount+ii]
-    yys = y_s[:h-ii]
-    print('weather yss-len=', len(yys), ', room xss-len= ', len(xxs))
+    xxs = x_s[ii:h-research_amount+ii]
+
     #plt.plot(time_simple[:h-ii], xxs, '-', time_simple[:h-ii], yys, '*')
     #plt.show()
     issleduem[ii] = np.corrcoef(xxs,yys)[0][1]
