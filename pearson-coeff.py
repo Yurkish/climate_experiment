@@ -5,4 +5,4 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy import stats
 
-pearson_correlation_research ( month_array[0],rooms_array[0] )
+pearson_correlation_research(month_array[0],rooms_array[0])

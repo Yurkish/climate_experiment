@@ -48,7 +48,9 @@ room6_inter = interp1d(data6x, data6y, kind='cubic')
 room7_inter = interp1d(data7x, data7y, kind='cubic')
 x1new = np.linspace(time_start, time_stop, num=14800, endpoint=True)
 #
-
+plt.plot(data5x, data5y, '-.', data5x, room5_inter(data5x), '-')
+plt.legend(['raw', 'cubic'], loc='best')
+plt.show()
 time_steps = len(x1new)
 print('time steps = ', time_steps)
 w, h = 4, time_steps
