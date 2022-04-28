@@ -144,8 +144,8 @@ time_point_amount_aug2 = 15000
 x1_june = np.linspace(time_start_june, time_stop_june, num=time_point_amount_june, endpoint=True)
 x1_july = np.linspace(time_start_july, time_stop_july, num=time_point_amount_july, endpoint=True)
 
-x1_aug = np.linspace(time_start_aug1, time_stop_aug1, num=time_point_amount_aug1, endpoint=True)
-x2_aug = np.linspace(time_start_aug2, time_stop_aug2, num=time_point_amount_aug2, endpoint=True)
+x1_aug1 = np.linspace(time_start_aug1, time_stop_aug1, num=time_point_amount_aug1, endpoint=True)
+x2_aug2 = np.linspace(time_start_aug2, time_stop_aug2, num=time_point_amount_aug2, endpoint=True)
 h_june = len(x1_june)
 h_july = len(x1_july)
 h_aug1 = len(x1_aug1)
@@ -166,10 +166,18 @@ x_simple7_lujy = np.zeros( h_july )
 x_simple7_aug1 = np.zeros( h_aug1 )
 x_simple7_aug2 = np.zeros( h_aug2 )
 
-y_simple = np.zeros( h)
-time_simple = np.zeros( h)
+y_simple_june = np.zeros( h_june )
+y_simple_july = np.zeros( h_july )
+y_simple_aug1 = np.zeros( h_aug1 )
+y_simple_aug2 = np.zeros( h_aug2 )
+
+time_simple_june = np.zeros( h_june )
+time_simple_july = np.zeros( h_july )
+time_simple_aug1 = np.zeros( h_aug1 )
+time_simple_aug2 = np.zeros( h_aug2 )
 ind = 1
 indd = 0
+
 fin = int(dataweather[-1][0])
 for row in x1new:
     time_is_now = float(row)
