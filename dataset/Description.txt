@@ -1,0 +1,15 @@
+
+-----------
+ Описание
+-----------
+
+Датасет содержит данные о микроклиматическом состоянии помещений в здании Института, синхронизированные по времени с данными метеостанции, установленной на крыше соответствующего комплекса. Данные скомпонованы по месяцам и охватывают период весна-лето 2020 года. Особенностью этого датасета является режим коронавирусного карантина, действовавший в то время в городе. В этот период исключается воздействие присутствующих в помещении людей, перемешивание воздушных масс через открытые двери и окна. Такие условия идеальны для определения таких параметров помещения, не зависящих от времени, как коэффициент теплового сопротивления стен, теплоемкости находящихся внутри помещения предметов и т.п.
+
+-----------
+Description
+-----------
+
+The dataset contains measurements of the microclimatic state for several rooms in the building of the institute. The data are synchronized with a weather station, which is placed on the roof of the building, and grouped by months (spring-summer 2020). It is noteworthy that the data were collected during COVID-19 quarantine restrictions, so there can be no impact of people in the building. These conditions are perfect for determining time-independent room parameters, such as thermal resistance of walls, heat capacity of objects in the room, etc.
+
+
+

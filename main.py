@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 
 
 # importing data from csv files
-month_code = 'july'
+month_code = 'aug'
 match month_code:
     case 'jun':
         data5 = import_csv_temperature('june/r5.csv')
@@ -46,7 +46,7 @@ for row in data7:
 room5_inter = interp1d(data5x, data5y, kind='cubic')
 room6_inter = interp1d(data6x, data6y, kind='cubic')
 room7_inter = interp1d(data7x, data7y, kind='cubic')
-x1new = np.linspace(time_start, time_stop, num=800, endpoint=True)
+x1new = np.linspace(time_start, time_stop, num=14800, endpoint=True)
 #
 
 time_steps = len(x1new)
@@ -57,7 +57,7 @@ U = np.zeros( (h-1,w) )
 ksi = np.zeros( h-1 )
 # ksi = [0 for y in range(h)]
 
-with open('result-aug.csv', 'w') as res:
+with open('result-aug.csv', 'w', newline='') as res:
     conc = csv.DictWriter(res, delimiter=";", fieldnames=['ts', 'tr5', 'tr6', 'tr7', 'tw', 'twt', 'deltat'])
     conc.writeheader()
     ind = 1
