@@ -7,8 +7,6 @@ from scipy.interpolate import interp1d
 from tkinter import filedialog
 from tkinter import *
 from scipy.interpolate import CubicSpline
-month_array = ['june', 'july', 'aug1', 'aug2']
-rooms_array = ['room5', 'room6', 'room7']
 
 def import_csv_temperature(csvfilename):
     data = []
