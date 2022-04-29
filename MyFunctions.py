@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 from tkinter import filedialog
 from tkinter import *
 from scipy.interpolate import CubicSpline
+kind_lst = ['nearest', 'zero', 'slinear', 'cubic', 'previous', 'next']
 
 def import_csv_temperature(csvfilename):
     data = []
@@ -107,7 +108,7 @@ def pearson_correlation_research(month_code,room):
         y.append(float(row[2]))
     x_new = np.linspace(time_start, time_stop, num=time_point_amount, endpoint=True)
     cs = CubicSpline(x, y)
-    # kind_lst = ['nearest', 'zero', 'slinear', 'cubic', 'previous', 'next']
+
     # for k in kind_lst:
     #     f = interp1d(x, y, kind=k)
     #     y_new = f(x_new)
