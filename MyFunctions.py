@@ -104,9 +104,33 @@ def pearson_correlation_research(month_code,room):
     x = []
     y = []
     for row in data:
-        x.append(float(row[1]))
-        y.append(float(row[2]))
-    x_new = np.linspace(time_start, time_stop, num=time_point_amount, endpoint=True)
+        if row[1] > time_stop:
+            break
+        elif row[1] < time_start:
+            continue
+        else:
+            x.append(float(row[1]))
+            y.append(float(row[2]))
+    x_new = np.linspace(time_start+360, time_stop-360, num=time_point_amount, endpoint=True)
+
+    #
+    # here we get data from meteostation dataset
+    # time of measurement matches with time point for interpolation
+    #
+    ind = 1
+    indd = 0
+    w = np.zeros(time_point_amount)
+    fin = int(dataweather[-1][0])
+    for row in x_new:
+        time_is_now = float(row)
+        for i in range(ind, fin):
+            if int(dataweather[i][1]) < time_is_now:
+                continue
+            else:
+                ind = i
+                break
+        w[indd] = "%.7f" % float(dataweather[ind][2])
+        indd += 1
     cs = CubicSpline(x, y)
 
     # for k in kind_lst:
@@ -114,7 +138,7 @@ def pearson_correlation_research(month_code,room):
     #     y_new = f(x_new)
     #     plt.plot(x_new, y_new, label=k)
     room_funct = interp1d(x, y, kind='linear')
-    R = len(data[:])
+    R = len(x)
     print('\n R = ',R, '\n')
     for row in range(R):
         diff1 = cs(x[row]) - y[row]
