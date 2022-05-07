@@ -181,29 +181,28 @@ def pearson_correlation_research(month_code,room):
     def linear_room_weather_prediction(x):
         return slope * x + intercept
     #########################################################################
-    ###### prepareing
+    ###### prepareing predicting array ######################################
     mymodel = list(map(linear_room_weather_prediction, w[:time_point_amount]))
-
+    #########################################################################
     figure_shifting, (initial_fig, correl_to_shift, shifted_fig) = plt.subplots(3, 1, constrained_layout=True, sharey=True)
-    initial_fig.plot(time_new,r_t,'-')
-    initial_fig.plot(x_new[research_amount:], x[research_amount:], '-.')
-    initial_fig.set_title('damped')
+    initial_fig.plot(time_new, room_inter,'-')
+    initial_fig.plot(time_new, w, '*')
+    initial_fig.set_title('Initial data')
     initial_fig.set_xlabel('time (s)')
-    initial_fig.set_ylabel('amplitude')
+    initial_fig.set_ylabel('temperature (C)')
 
-    correl_to_shift.plot(x_new[research_amount:], myfunc5(y_s[q:time_point_amount - research_amount + q]))
-    correl_to_shift.set_xlabel('time (s)')
-    correl_to_shift.set_title('undamped')
+    correl_to_shift.plot(range(research_amount),search_for_maximum_corr,'-')
+    correl_to_shift.set_xlabel('shifting time frame')
+    correl_to_shift.set_title('Correlation Coeffitient')
 
-    shifted_fig.plot(x_res[q:time_point_amount - research_amount + q], my(y_s[q:time_point_amount - research_amount + q]))
+    shifted_fig.plot(time_new[:time_point_amount - research_amount],w[:time_point_amount - research_amount],'-', time_new[:time_point_amount - research_amount],room_inter[chosen_shift:time_point_amount - research_amount+chosen_shift])
     shifted_fig.set_xlabel('time (s)')
     shifted_fig.set_title('undamped')
 
-    fig.suptitle('Different types of oscillations', fontsize=16)
-    plt.show()
-    plt.plot()
-
-    plt.plot(x,y,'*',x_new, r_t(x_new),'-')
-    plt.legend(['raw','linear'], loc='best')
+    figure_shifting.suptitle('Different figures', fontsize=16)
+    # plt.show()
+    #
+    # plt.plot(x,y,'*',time_new, r_t(time_new),'-')
+    # plt.legend(['raw','linear'], loc='best')
     plt.show()
     return 1
