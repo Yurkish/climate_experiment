@@ -176,6 +176,8 @@ def pearson_correlation_research(month_code,room):
     ###################################################
     slope, intercept, r, p, std_err = stats.linregress(w_reduced, room_inter[chosen_shift:time_point_amount - research_amount + chosen_shift])
 
+    #########################################################################
+    ### prediction of room_temperature from shifted weather temp ############
     def linear_room_weather_prediction(x):
         return slope * x + intercept
     #########################################################################
