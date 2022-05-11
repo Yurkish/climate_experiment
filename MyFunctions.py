@@ -115,6 +115,7 @@ def pearson_correlation_research(month_code,room):
     #########################################################################
     ### new time points net ###########
     time_new = np.linspace(x[0], x[-1], num=time_point_amount, endpoint=True)
+    tt = np.linspace(0, (x[-1] - x[0]), num=time_point_amount, endpoint=True)
     #########################################################################
     ### interpolated function of temperature inside the room ################
     r_t = interp1d(x, y, kind='linear')
@@ -184,25 +185,41 @@ def pearson_correlation_research(month_code,room):
     ###### prepareing predicting array ######################################
     mymodel = list(map(linear_room_weather_prediction, w[:time_point_amount]))
     #########################################################################
-    figure_shifting, (initial_fig, correl_to_shift, shifted_fig) = plt.subplots(3, 1, constrained_layout=True, sharey=True)
-    initial_fig.plot(time_new, room_inter,'-')
-    initial_fig.plot(time_new, w, '*')
+    figure_shifting, (initial_fig, correl_to_shift, shifted_fig) = plt.subplots(3, 1, constrained_layout=True)
+    # initial_fig.plot(time_new, room_inter,'-')
+    # initial_fig.plot(time_new, w, '-.')
+    initial_fig.plot(tt, room_inter,'-')
+    initial_fig.plot(tt, w, '-.')
     initial_fig.set_title('Initial data')
     initial_fig.set_xlabel('time (s)')
     initial_fig.set_ylabel('temperature (C)')
+    y_inf = min(w)
+    y_sup = max(w)
+    initial_fig.set_ylim([y_inf,y_sup])
 
-    correl_to_shift.plot(range(research_amount),search_for_maximum_corr,'-')
+    correl_to_shift.plot(tt[:research_amount],search_for_maximum_corr,'-')
+    correl_to_shift.plot(tt,w/max(w), '-.')
     correl_to_shift.set_xlabel('shifting time frame')
     correl_to_shift.set_title('Correlation Coeffitient')
+    #correl_to_shift.set_xlim([0,500])
+    correl_to_shift.set_ylim([0, 1])
+    correl_to_shift.axhline(y=max(search_for_maximum_corr), color='r', linestyle='dashdot')
+    correl_to_shift.axvline(x=tt[chosen_shift], color='r', linestyle='dashdot')
+    correl_to_shift.axvline(x=tt[0], color='r', linestyle='dashdot')
 
-    shifted_fig.plot(time_new[:time_point_amount - research_amount],w[:time_point_amount - research_amount],'-', time_new[:time_point_amount - research_amount],room_inter[chosen_shift:time_point_amount - research_amount+chosen_shift])
+
+    shifted_fig.plot(tt[:time_point_amount - research_amount],w[:time_point_amount - research_amount],'-', tt[:time_point_amount - research_amount],room_inter[chosen_shift:time_point_amount - research_amount+chosen_shift])
+    shifted_fig.axvline(x=tt[0], color='r', linestyle='dashdot')
+    shifted_fig.axvline(x=tt[chosen_shift], color='r', linestyle='dashdot')
+    shifted_fig.plot(tt[:research_amount],search_for_maximum_corr,'-')
     shifted_fig.set_xlabel('time (s)')
     shifted_fig.set_title('undamped')
-
+    shifted_fig.set_ylim([0,y_sup])
     figure_shifting.suptitle('Different figures', fontsize=16)
     # plt.show()
     #
     # plt.plot(x,y,'*',time_new, r_t(time_new),'-')
     # plt.legend(['raw','linear'], loc='best')
     plt.show()
+
     return 1
