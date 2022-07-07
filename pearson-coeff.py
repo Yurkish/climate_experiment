@@ -4,7 +4,7 @@ from pandas.plotting import table # EDIT: see deprecation warnings below
 
 month_array = ['june', 'july', 'aug1', 'aug2']
 rooms_array = ['room5', 'room6', 'room7']
-save_fig = 0
+save_fig = 1
 #pearson_correlation_research(month_array[0],rooms_array[2])
 #data = [len(month_array)][len(rooms_array)]
 data = np.zeros((len(month_array),len(rooms_array)))

@@ -160,38 +160,57 @@ def pearson_correlation_research(month_code,room,save_fig):
     room_weather_corr = np.corrcoef(room_inter, w)
     print(room_weather_corr)
     #########################################################
+    ##### creating file for research results ################
+    #########################################################
+    research_file_name = 'SHIFT SEARCH ' + month_code + ' ' + room + '.csv'
+
+    #########################################################
     ##### let's shift reading frame #########################
     #########################################################
     search_for_maximum_corr = np.zeros(research_amount)
     #
     w_reduced = w[:time_point_amount - research_amount]
-    for i in range(research_amount):
-        # room temperature with i-shifted frame
-        room_research = room_inter[i:time_point_amount - research_amount + i]
+
+    with open(research_file_name, 'w', newline='') as research_res_file:
+        conc = csv.DictWriter(research_res_file, delimiter=";", fieldnames=['step', 'ts', 'tm', 'pearson'])
+        conc.writeheader()
+        for i in range(research_amount):
+         # room temperature with i-shifted frame
+            room_research = room_inter[i:time_point_amount - research_amount + i]
         # correlation of shifted room-t frame and fixed weather-t frame
-        search_for_maximum_corr[i] = np.corrcoef(room_research, w_reduced)[0][1]
-        print('pearson coefficient ', i, ' = ', search_for_maximum_corr [i])
-    print(np.where(search_for_maximum_corr  == max(search_for_maximum_corr)))
-    print(np.argmax(search_for_maximum_corr ))
+            search_for_maximum_corr[i] = np.corrcoef(room_research, w_reduced)[0][1]
+            #print(i,' -> PC for ', int(i*(time_stop-time_start)/(time_point_amount*60)), ' min. = ', search_for_maximum_corr [i])
+            t_s = int(i*(time_stop-time_start)/(time_point_amount))
+            t_m = i*(time_stop-time_start)/(time_point_amount*60)
+            conc.writerow(dict(step="%.d" % i, ts="%.d" % t_s, tm="%.1f" % t_m, pearson="%.3f" % search_for_maximum_corr [i]))
+    research_res_file.close()
+    print(np.where(search_for_maximum_corr == max(search_for_maximum_corr)))
+    print(np.argmax(search_for_maximum_corr))
     ########################################################
     ### best for correlation shift size ####################
     chosen_shift = np.argmax(search_for_maximum_corr)
-    ###################################################
-    slope, intercept, r, p, std_err = stats.linregress(w_reduced, room_inter[chosen_shift:time_point_amount - research_amount + chosen_shift])
+    room_shifted = room_inter[chosen_shift:time_point_amount - research_amount + chosen_shift]
 
+    ###################################################
+    slope, intercept, r, p, std_err = stats.linregress(w_reduced, room_shifted)
+    old_res = stats.linregress(w_reduced, room_inter[:time_point_amount - research_amount])
+    print('r-old = ', old_res.rvalue, ', r-new = ', r)
+    print('slope = ', slope, ', intercept = ', intercept, ', std_err =', std_err)
     #########################################################################
     ### prediction of room_temperature from shifted weather temp ############
     def linear_room_weather_prediction(x):
         return slope * x + intercept
     #########################################################################
     ###### prepareing predicting array ######################################
-    mymodel = list(map(linear_room_weather_prediction, w[:time_point_amount]))
+    mymodel = list(map(linear_room_weather_prediction, w_reduced))
+    linear_deviation = np.std(mymodel - room_shifted)
+    print('std_deviation = ', linear_deviation)
     #########################################################################
     figure_shifting, (initial_fig, correl_to_shift, shifted_fig) = plt.subplots(3, 1, constrained_layout=True)
     # initial_fig.plot(time_new, room_inter,'-')
     # initial_fig.plot(time_new, w, '-.')
     initial_fig.plot(t_days, room_inter,'-')
-    initial_fig.plot(t_days, w, '-.')
+    initial_fig.plot(t_days, w, '-')
     initial_fig.set_title('Initial data')
     initial_fig.set_xlabel('Days')
     initial_fig.set_ylabel('temperature (C)')
@@ -200,7 +219,7 @@ def pearson_correlation_research(month_code,room,save_fig):
     initial_fig.set_ylim([y_inf,y_sup])
 
     correl_to_shift.plot(tt[:research_amount],search_for_maximum_corr,'-')
-    correl_to_shift.plot(tt,w/max(w), '-.')
+    #correl_to_shift.plot(tt,w/max(w), '-')
     correl_to_shift.set_xlabel('time (S)')
     correl_to_shift.set_title('shifting ' + str(chosen_shift*(time_stop-time_start)/(time_point_amount*3600)) + ' hours')
     #correl_to_shift.set_xlim([0,500])
@@ -215,10 +234,10 @@ def pearson_correlation_research(month_code,room,save_fig):
     shifted_fig.axvline(x=1, color='r', linestyle='dashdot')
     shifted_fig.axvline(x=1+chosen_shift*(time_stop-time_start)/(time_point_amount*3600*24), color='r', linestyle='dashdot')
     shifted_fig.axvline(x=t_days[chosen_shift], color='r', linestyle='dashdot')
-    shifted_fig.legend(['weather', 'room_shifted', 'initial temp'], loc='best')
+    shifted_fig.legend(['погода', 'комната сдвиг.', 'комната нач.'], loc='best')
     #shifted_fig.plot(tt[:research_amount],search_for_maximum_corr,'-')
-    shifted_fig.set_xlabel('Days')
-    shifted_fig.set_title('undamped')
+    shifted_fig.set_xlabel('Дни')
+    shifted_fig.set_title('Синхронизированные кривые')
     shifted_fig.set_ylim([y_inf,y_sup])
     figure_shifting.suptitle(month_code + ' ' + room, fontsize=16)
     # plt.show()

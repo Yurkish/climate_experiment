@@ -5,7 +5,7 @@ from scipy.interpolate import interp1d
 
 
 # importing data from csv files
-month_code = 'aug'
+month_code = 'july'
 match month_code:
     case 'jun':
         data5 = import_csv_temperature('june/r5.csv')
