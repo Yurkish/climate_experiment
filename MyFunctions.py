@@ -176,16 +176,22 @@ def pearson_correlation_research(month_code,room,save_fig):
     ########################################################
     ### best for correlation shift size ####################
     chosen_shift = np.argmax(search_for_maximum_corr)
+    room_research_shifted = room_inter[chosen_shift:time_point_amount - research_amount + chosen_shift]
     ###################################################
     slope, intercept, r, p, std_err = stats.linregress(w_reduced, room_inter[chosen_shift:time_point_amount - research_amount + chosen_shift])
-
     #########################################################################
     ### prediction of room_temperature from shifted weather temp ############
     def linear_room_weather_prediction(x):
         return slope * x + intercept
     #########################################################################
     ###### prepareing predicting array ######################################
-    mymodel = list(map(linear_room_weather_prediction, w[:time_point_amount]))
+    mymodel = list(map(linear_room_weather_prediction, w_reduced))
+    forecast_error_series = mymodel - room_research_shifted
+    print('std_error = ', np.std(forecast_error_series))
+    forecasterror = plt.plot(t_days[:time_point_amount - research_amount],mymodel,'-.',t_days[:time_point_amount - research_amount],forecast_error_series,'-',t_days[:time_point_amount - research_amount], room_research_shifted, '*')
+
+    #forecasterror.grid(color='r', linestyle='-', linewidth=2)
+    #forecasterror.set_xlabel('DDDD')
     #########################################################################
     figure_shifting, (initial_fig, correl_to_shift, shifted_fig) = plt.subplots(3, 1, constrained_layout=True)
     # initial_fig.plot(time_new, room_inter,'-')
@@ -200,7 +206,7 @@ def pearson_correlation_research(month_code,room,save_fig):
     initial_fig.set_ylim([y_inf,y_sup])
 
     correl_to_shift.plot(tt[:research_amount],search_for_maximum_corr,'-')
-    correl_to_shift.plot(tt,w/max(w), '-.')
+    correl_to_shift.plot(tt,w/max(w), '-')
     correl_to_shift.set_xlabel('time (S)')
     correl_to_shift.set_title('shifting ' + str(chosen_shift*(time_stop-time_start)/(time_point_amount*3600)) + ' hours')
     #correl_to_shift.set_xlim([0,500])

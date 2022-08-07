@@ -272,6 +272,5 @@ ax1.set_ylabel('amplitude')
 ax2.plot(x1new[research_amount:],myfunc5(y_s[q5:h-research_amount+q5]))
 ax2.set_xlabel('time (s)')
 ax2.set_title('undamped')
-
 fig.suptitle('Different types of oscillations', fontsize=16)
 plt.show()
