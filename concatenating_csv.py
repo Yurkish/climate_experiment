@@ -20,4 +20,4 @@ for room in rooms_from_devices:
                     infile.readline()  # Throw away header on all but first file
                 # Block copy rest of file from input to output without parsing
                 shutil.copyfileobj(infile, outfile)
-                print(fname + " has been imported.")
+                print(fname + " has been sucsessfully imported.")
