@@ -45,6 +45,8 @@ def create_file_list():
     root.withdraw()
     folder_selected = filedialog.askdirectory()
     return root
+def dataset_preparation (month_code,room,save_fig):
+    return 0
 def pearson_correlation_research(month_code,room,save_fig):
     print(' -> ',month_code, ' ', room)
     match month_code:
