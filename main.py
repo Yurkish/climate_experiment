@@ -3,7 +3,6 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.interpolate import interp1d
 
-
 # importing data from csv files
 month_code = 'july'
 match month_code:

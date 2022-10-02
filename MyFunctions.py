@@ -9,7 +9,14 @@ from tkinter import *
 from scipy.interpolate import CubicSpline
 from scipy import stats
 kind_lst = ['nearest', 'zero', 'slinear', 'cubic', 'previous', 'next']
-
+def dividing_lists(w, ratio):
+    if ratio > 1:
+        ratio = 1
+        print('ratio cannot be reater than 1')
+    time_points_w_train = int(len(w)*ratio)
+    w_train = w[:time_points_w_train]
+    w_test = w[time_points_w_train:]
+    return w_train, w_test
 def import_csv_temperature(csvfilename):
     data = []
     with open(csvfilename, "r", encoding="utf-8", errors="ignore") as scraped:
@@ -40,11 +47,6 @@ def import_csv_weather(csvfilename):
         print(csvfilename, ' - begins at: ', datetime.datetime.fromtimestamp(float(data[1][1])))
         print(csvfilename, ' - ends at  : ', datetime.datetime.fromtimestamp(float(data[-1][1])))
     return data
-def create_file_list():
-    root = Tk()
-    root.withdraw()
-    folder_selected = filedialog.askdirectory()
-    return root
 def dataset_preparation (month_code,room,save_fig):
     return 0
 def pearson_correlation_research(month_code,room,save_fig):
@@ -159,8 +161,12 @@ def pearson_correlation_research(month_code,room,save_fig):
     #########################################################
     ##### here we start our estimation research #############
     #########################################################
-    room_weather_corr = np.corrcoef(room_inter, w)
-    print(room_weather_corr)
+    ratio = 0.7
+    w1 = dividing_lists(w, ratio)
+    room_inter1 = dividing_lists(room_inter, ratio)
+    room_weather_corr = np.corrcoef(room_inter1[0], w1[0])
+    print('room_weather_corr')
+    print (room_weather_corr)
     #########################################################
     ##### creating file for research results ################
     #########################################################
@@ -255,3 +261,4 @@ def pearson_correlation_research(month_code,room,save_fig):
     time_of_shift = chosen_shift*(time_stop-time_start)/(time_point_amount*3600)
     vector_of_returns = [time_of_shift, chosen_shift, max(search_for_maximum_corr), time_start, time_stop, time_point_amount]
     return vector_of_returns
+
