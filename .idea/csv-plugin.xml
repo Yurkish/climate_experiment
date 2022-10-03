@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\dataset\aug20\ELT_aud._6_8B17.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\pearson-corr.csv">
           <value>
             <Attribute>

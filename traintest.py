@@ -1,5 +1,5 @@
 from MyFunctions import *
-
+from statistics import mean
 
 def acquisition_step(month_code, room):
     data = []
@@ -69,7 +69,8 @@ def acquisition_step(month_code, room):
     # new time points net ###########
     time_new = np.linspace(x[0], x[-1], num=time_point_amount, endpoint=True)
     t_days = (x[-1] - x[0])/86400
-
+    tt = np.linspace(0, (x[-1] - x[0]), num=time_point_amount, endpoint=True)
+    tt_days = tt/86400
     #########################################################################
     # interpolated function of temperature inside the room ################
     r_t = interp1d(x, y, kind='linear')
@@ -80,6 +81,7 @@ def acquisition_step(month_code, room):
     ind = 1
     indd = 0
     w = np.zeros(time_point_amount)
+    t_points = np.zeros(time_point_amount)
     room_inter = np.zeros(time_point_amount)
     fin = int(dataweather[-1][0])
     for row in time_new:
@@ -92,9 +94,18 @@ def acquisition_step(month_code, room):
                 break
         w[indd] = "%.7f" % float(dataweather[ind][2])
         room_inter[indd] = "%.7f" % float(r_t(time_is_now))
+        t_points[indd] = time_is_now
         indd += 1
-    return w, room_inter, t_days
+    return w, room_inter, t_points, t_days, tt_days
 
+def create_cvs_from_our_data(t_points, w, r, month, room):
+    research_file_name = 'processed_dataset/' + month + '_' + room + '.csv'
+    with open(research_file_name, 'w', newline='') as creating_file:
+        conc = csv.DictWriter(creating_file, delimiter=";", fieldnames=['step', 'ts', 'w_t', 'r_t'])
+        conc.writeheader()
+        for i in range(len(w)):
+            conc.writerow(dict(step="%.d" % i, ts="%.d" % t_points[i], w_t="%.2f" % w[i], r_t="%.2f" % r[i]))
+    return 0
 def split_list(alist, wanted_parts=1):
     length = len(alist)
     return [alist[i*length // wanted_parts: (i+1)*length // wanted_parts]
@@ -104,11 +115,11 @@ def split_list(alist, wanted_parts=1):
 def search_for_best_shift(w, r, month, room, t_days):
     time_point_amount = len(w)
     research_amount = int(len(w) / (t_days * 4))
+    print (research_amount)
     research_file_name = 'SHIFT SEARCH ' + month + ' ' + room + '.csv'
     search_for_maximum_corr = np.zeros(research_amount)
     #
     w_reduced = w[:time_point_amount - research_amount]
-
     with open(research_file_name, 'w', newline='') as research_res_file:
         conc = csv.DictWriter(research_res_file, delimiter=";", fieldnames=['step', 'pearson'])
         conc.writeheader()
@@ -126,7 +137,7 @@ def search_for_best_shift(w, r, month, room, t_days):
     ### best for correlation shift size ####################
     chosen_shift = np.argmax(search_for_maximum_corr)
     room_shifted = r[chosen_shift:time_point_amount - research_amount + chosen_shift]
-    return w_reduced, room_shifted
+    return w_reduced, room_shifted, research_amount, chosen_shift
 
 
 def test_linregress_quality(w, r, slp, intr):
@@ -138,3 +149,10 @@ def test_linregress_quality(w, r, slp, intr):
     subtracted_list = np.subtract(mymodel, r)
     linear_deviation = np.std(subtracted_list)
     return linear_deviation
+
+def gained_list(lst):
+    gained = np.zeros(len(lst))
+    avrg = mean(lst)
+    for i in range(len(lst)):
+        gained[i] = avrg + 2*(lst[i] - avrg)
+    return gained
