@@ -36,13 +36,16 @@ for room in rooms_array:
         def linear_room_weather_prediction(x):
             return slope * x + intercept
         #########################################################################
-        # prepareing predicting array ######################################
+        # preparing predicting array ######################################
         mymodel = list(map(linear_room_weather_prediction, w_test[:-a[2]]))
         subtracted_list = np.subtract(mymodel, r_test[a[2]:])
         res = list(map(abs, subtracted_list))
         print('mean of error = ', mean(res))
         plt.plot(t_test[:-a[2]], r_test[a[2]:], '-', t_test[:-a[2]], mymodel, '-', t_test[:-a[2]], subtracted_list, '-.')
         plt.show()
+        plt.plot(t_test[:-a[2]], r_test[a[2]:], '-', t_test[:-a[2]], mymodel, '-')
+        plt.show()
+        plt.plot()
     #    linear_deviation = np.std(subtracted_list)
 ###########################################################################################
 
