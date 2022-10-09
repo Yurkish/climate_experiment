@@ -4,9 +4,9 @@ from traintest import *
 # month_array = ['june', 'july', 'aug1', 'aug2']
 # rooms_array = ['room5', 'room6', 'room7']
 month_array = ['july']
-rooms_array = ['room7']
+rooms_array = ['room5', '']
 # this is train\test ratio
-ratio = 0.7
+ratio = 0.6
 
 # here the main research starts
 for room in rooms_array:
@@ -15,7 +15,7 @@ for room in rooms_array:
         time_point_amount = len(tt_days)
         plt.plot(tt_days, r, '-', tt_days, w, '-.')
         plt.show()
-        #create_cvs_from_our_data(t_points, w, r, month, room)
+#create_cvs_from_our_data(t_points, w, r, month, room)
         w_train, w_test = dividing_lists(w, ratio)
         r_train, r_test = dividing_lists(r, ratio)
         t_train, t_test = dividing_lists(tt_days, ratio)
@@ -31,21 +31,33 @@ for room in rooms_array:
         plt.show()
 ###########################################################################################
         slope, intercept, r1, p1, std_err = stats.linregress(a[0], a[1])
+        compare_regr = stats.linregress(w_train, r_train)
 ###########################################################################################
 
         def linear_room_weather_prediction(x):
             return slope * x + intercept
+
+        def linear_room_weather_prediction_compare(x):
+            return compare_regr[0] * x + compare_regr[1]
         #########################################################################
         # preparing predicting array ######################################
         mymodel = list(map(linear_room_weather_prediction, w_test[:-a[2]]))
+        mymodel_compare = list(map(linear_room_weather_prediction_compare, w_test[:-a[2]]))
         subtracted_list = np.subtract(mymodel, r_test[a[2]:])
+        compared_list = np.subtract(mymodel, mymodel_compare)
         res = list(map(abs, subtracted_list))
         print('mean of error = ', mean(res))
         plt.plot(t_test[:-a[2]], r_test[a[2]:], '-', t_test[:-a[2]], mymodel, '-', t_test[:-a[2]], subtracted_list, '-.')
         plt.show()
+        plt.plot(t_test[:-a[2]], mymodel_compare, '-', t_test[:-a[2]], mymodel, '-')
+        plt.show()
+        plt.plot(t_test[:-a[2]], compared_list, '-.')
+        plt.show()
         plt.plot(t_test[:-a[2]], r_test[a[2]:], '-', t_test[:-a[2]], mymodel, '-')
         plt.show()
-        plt.plot()
+        plt.plot(t_test[:-a[2]], mymodel, '-',t_test[:-a[2]], r_test[a[2]:],'-.', t_train, r_train, '-.')
+        plt.grid(axis='x', color='0.95')
+        plt.show()
     #    linear_deviation = np.std(subtracted_list)
 ###########################################################################################
 
@@ -53,4 +65,6 @@ for room in rooms_array:
         predict_quality_train = test_linregress_quality(w_train, r_train, slope, intercept)
         print('predict_quality_train ' + month + ' ' + room, predict_quality_train)
         predict_quality_test = test_linregress_quality(w_test, r_test, slope, intercept)
+        print('predict_quality_test ' + month + ' ' + room, predict_quality_test)
+        predict_quality_test = test_linregress_quality(w_test, r_test, compare_regr[0], compare_regr[1])
         print('predict_quality_test ' + month + ' ' + room, predict_quality_test)
